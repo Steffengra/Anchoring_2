@@ -17,9 +17,6 @@ from tensorflow.keras.models import (
 from pathlib import (
     Path,
 )
-from shutil import (
-    copy2,
-)
 from datetime import (
     datetime,
 )
@@ -29,6 +26,9 @@ from gzip import (
 from pickle import (
     dump as pickle_dump,
     load as pickle_load,
+)
+from shutil import (
+    copy2,
 )
 
 from config import Config
@@ -107,6 +107,7 @@ class Runner:
             policy_anchoring_parameters_path: None or str = None,
             critic_anchoring_parameters_path: None or str = None,
     ) -> None:
+
         def progress_print() -> None:
             progress = (episode_id * self.config.num_steps_per_episode + step_id + 1) / self.config.steps_total
             timedelta = datetime.now() - real_time_start
@@ -284,7 +285,7 @@ class Runner:
                         progress_print()
 
             # log episode results
-            # Remove NaN entries, e.g. steps in which there was no training -> None loss
+            # Remove NaN entries, i.e. steps in which there was no training -> None loss
             episode_metrics['value_losses'] = episode_metrics['value_losses'][~isnan(episode_metrics['value_losses'])]
 
             per_episode_metrics['reward_per_step'][episode_id] = (
@@ -300,15 +301,13 @@ class Runner:
 
             # print episode results
             if self.config.verbosity == 1:
-                progress = sum(episode_metrics["rewards"]) / self.config.num_steps_per_episode
-                relative_priority_timeouts = (
-                        sum(episode_metrics["priority_timeouts"])
-                        / self.config.num_steps_per_episode
-                        / (probability_critical_events + self.config.tiny_numerical_value))
-                print('\n', end='')
-                print(f'episode per step reward: {progress:.2f}')
-                print(f'episode mean value loss: {mean(episode_metrics["value_losses"]):.2f}')
-                print(f'episode per occurrence priority timeouts: {relative_priority_timeouts:.2f}')
+                results_print: str = (
+                    '\n'
+                    f'  {"episode per step reward:":<45}{per_episode_metrics["reward_per_step"][episode_id]:.2f}\n'
+                    f'  {"episode per occurrence priority timeouts:":<45}{per_episode_metrics["priority_timeouts_per_occurrence"][episode_id]:.2f}\n'
+                    f'  {"current exploration noise momentum epsilon:":<45}{exploration_noise_momentum:.2f}\n'
+                )
+                print(results_print)
 
             # reset simulation for next episode
             sim.reset()
@@ -474,6 +473,13 @@ class Runner:
                 policy_parameters = pickle_load(file)
             policy_parameters_anchor = policy_parameters['final']
             policy_parameters_fisher = policy_parameters['fisher']
+        critic_parameters_anchor = None
+        critic_parameters_fisher = None
+        if critic_anchoring_parameters_path:
+            with gzip_open(critic_anchoring_parameters_path, 'rb') as file:
+                critic_parameters = pickle_load(file)
+            critic_parameters_anchor = critic_parameters['final']
+            critic_parameters_fisher = critic_parameters['fisher']
 
         exploration_noise_momentum = self.config.exploration_noise_momentum_initial
 
