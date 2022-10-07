@@ -16,9 +16,7 @@ from anchoring_2_imports.experience_buffer import (
 )
 from anchoring_2_imports.network_models import (
     ValueNetwork,
-    ValueNetworkBatchNorm,
     PolicyNetwork,
-    PolicyNetworkBatchNorm
 )
 from anchoring_2_imports.dl_internals_with_expl import (
     mse_loss,
@@ -88,7 +86,7 @@ class TD3ActorCritic:
             num_hidden_a: list,
             activation_hidden: str,
             kernel_initializer: str,
-            num_actions,
+            num_actions: int,
             optimizer_critic,
             optimizer_critic_args: dict,
             optimizer_actor,
@@ -104,36 +102,34 @@ class TD3ActorCritic:
             if networks[net_name] == 'critic':
                 if not batch_normalize:
                     network_type = ValueNetwork
-                else:
-                    network_type = ValueNetworkBatchNorm
+                # else:
+                #     network_type = ValueNetworkBatchNorm
                 init_arguments = {
                     'num_hidden': num_hidden_c,
                 }
             elif networks[net_name] == 'actor':
                 if not batch_normalize:
                     network_type = PolicyNetwork
-                else:
-                    network_type = PolicyNetworkBatchNorm
+                # else:
+                #     network_type = PolicyNetworkBatchNorm
                 init_arguments = {
                     'num_hidden': num_hidden_a,
-                    'num_actions': num_actions
+                    'num_actions': num_actions,
                 }
             else:
-                network_type = None
-                init_arguments = None
-                exit()
+                raise ValueError('Unknown network type')
             # -----------------------------------------------------------------
 
             # Create according to selected hyper parameters--------------------
             self.networks[net_name] = {
                 'primary':
                     network_type(name=name + net_name + 'Primary',
-                                 activation=activation_hidden,
+                                 activation_hidden=activation_hidden,
                                  kernel_initializer=kernel_initializer,
                                  **init_arguments),
                 'target':
                     network_type(name=name + net_name + 'Target',
-                                 activation=activation_hidden,
+                                 activation_hidden=activation_hidden,
                                  kernel_initializer=kernel_initializer,
                                  **init_arguments),
             }
@@ -156,29 +152,29 @@ class TD3ActorCritic:
     def load_pretrained_networks(
             self,
             value_path: str,
-            policy_path: str
+            policy_path: str,
     ):
         for network in ['value1', 'value2']:
             for network_type in ['primary', 'target']:
                 if network_type == 'primary':
-                    loss = self.networks[network][network_type].loss
                     optimizer = self.networks[network][network_type].optimizer
+                    loss = self.networks[network][network_type].loss
                 self.networks[network][network_type] = tf.keras.models.load_model(value_path)
                 if network_type == 'primary':
                     self.networks[network][network_type].compile(
                         optimizer=optimizer,
-                        loss=loss
+                        loss=loss,
                     )
         for network in ['policy']:
             for network_type in ['primary', 'target']:
                 if network_type == 'primary':
-                    loss = self.networks[network][network_type].loss
                     optimizer = self.networks[network][network_type].optimizer
+                    loss = self.networks[network][network_type].loss
                 self.networks[network][network_type] = tf.keras.models.load_model(policy_path)
                 if network_type == 'primary':
                     self.networks[network][network_type].compile(
                         optimizer=optimizer,
-                        loss=loss
+                        loss=loss,
                     )
 
     def freeze_layers(
@@ -328,15 +324,6 @@ class TD3ActorCritic:
             for v_primary, v_target in zip(network_pair['primary'].trainable_variables,
                                            network_pair['target'].trainable_variables):
                 v_target.assign(tau_target_update * v_primary + (1 - tau_target_update) * v_target)
-            # variables_primary = network_pair['primary'].trainable_variables
-            # variables_target = network_pair['target'].trainable_variables
-            # soft_update_parameters = [tf.add(
-            #     tf.multiply(tau_target_update, variable_primary),
-            #     tf.multiply((1 - tau_target_update), variable_target))
-            #     for variable_primary, variable_target
-            #     in zip(variables_primary, variables_target)]
-            # for v_old, v_soft in zip(variables_target, soft_update_parameters):
-            #     v_old.assign(v_soft)
 
     @tf.function
     def train_graph(
@@ -492,7 +479,7 @@ class TD3ActorCritic:
                 actor_actions = call_network(self.networks['policy']['primary'], input_vector)
                 value_network_input = tf.concat([input_vector, actor_actions], axis=1)
                 # TODO: Original Paper, DDPG Paper and other implementations train on primary network. Why?
-                #  Because this way the value net is always one gradient step behind
+                #  Because otherwise the value net is always one gradient step behind
                 value_network_score = tf.reduce_mean(
                     call_network(self.networks['value1']['primary'], value_network_input))
 
@@ -570,7 +557,6 @@ class TD3ActorCritic:
             critic_parameters_anchor: None or list = None,
             critic_parameters_fisher: None or list = None,
     ) -> tuple[float or None, float or None]:
-
         if self.experience_buffer.get_len() < self.batch_size:
             return None, None
 
@@ -592,7 +578,6 @@ class TD3ActorCritic:
         train_policy = tf.constant(train_policy)
 
         if policy_parameters_anchor:
-            # TODO: IF SOMETHING BREAKS THIS IS IT
             policy_weight_anchoring_lambda = tf.constant(policy_weight_anchoring_lambda, dtype=tf.float32)
         if critic_parameters_anchor:
             critic_weight_anchoring_lambda = tf.constant(critic_weight_anchoring_lambda, dtype=tf.float32)
@@ -607,7 +592,8 @@ class TD3ActorCritic:
             tau_target_update=tau_target_update,
             train_value=train_value,
             train_policy=train_policy,
-            states=states, actions=actions,
+            states=states,
+            actions=actions,
             rewards=rewards,
             next_states=next_states,
             sample_importance_weights=sample_importance_weights,
@@ -618,6 +604,7 @@ class TD3ActorCritic:
             critic_parameters_anchor=critic_parameters_anchor,
             critic_parameters_fisher=critic_parameters_fisher,
         )
+
 
         self.experience_buffer.adjust_priorities(experience_ids=experience_ids, new_priorities=q1_td_error.numpy())
 
