@@ -30,14 +30,14 @@ class Config:
         # simulation_title: str = 'anchoring_1e5_2_error'
         simulation_title: str = 'test'
         self.verbosity: int = 1  # 0 = no prints, 1 = prints
-        self.show_plots: bool = False
+        self.show_plots: bool = True
         self.toggle_profiling: bool = False  # compute performance profiling
         self.shutdown_on_complete: bool = False
 
         rng_seed: int or None = None  # doesn't work at this time
 
         # ENVIRONMENT PARAMETERS----------------------------------------------------------------------------------------
-        self.num_episodes: int = 2
+        self.num_episodes: int = 10
         # simulation_length_seconds: int = 1
         # self.symbols_per_subframe: int = 14  # see: 5g numerologies, 14=num0. For sim seconds -> sim steps
         self.num_steps_per_episode: int = 1_000
@@ -49,7 +49,6 @@ class Config:
         self.num_users: int = 5
         self.job_creation_probability: float = 0.5
         self.max_job_size_rb: int = 7
-
 
         # REWARD
         self.ue_snr_db: float = 10  # for capacity
@@ -111,6 +110,9 @@ class Config:
         self.adaptive_anchoring_weight_lambda: bool = False
         self.policy_anchoring_weight_lambda: float = 1e5  # Multiplier weight to the anchoring penalty in the loss function
         self.critic_anchoring_weight_lambda: float = 0.0
+
+        # GEM
+        self.num_experiences_dump: int = 2048  # number of samples to save from a task for loading in future tasks
 
         # EXP BUFFER
         self.experience_buffer_max_size: int = 20_000
@@ -310,6 +312,21 @@ class Config:
             'tau_target_update': self.tau_target_update,
             'policy_weight_anchoring_lambda': self.policy_anchoring_weight_lambda,
             'critic_weight_anchoring_lambda': self.critic_anchoring_weight_lambda,
+        }
+
+        self.gem_args = {
+            'num_actions': self.num_actions_policy,
+            'batch_size': self.batch_size,
+            'num_max_experiences': self.experience_buffer_max_size,
+            'num_hidden_critic': self.hidden_layers_value_net,
+            'num_hidden_actor': self.hidden_layers_policy_net,
+            'future_reward_discount_gamma': self.future_reward_discount_gamma_allocation,
+            'optimizer_critic': self.optimizer_critic,
+            'optimizer_critic_args': self.optimizer_critic_args,
+            'optimizer_actor': self.optimizer_actor,
+            'optimizer_actor_args': self.optimizer_actor_args,
+            'hidden_layer_args': self.hidden_layer_args,
+            'priority_scale_alpha': self.prioritization_factors['alpha'],
         }
 
     def update_num_steps_per_episode(
