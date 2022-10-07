@@ -14,13 +14,13 @@ class ValueNetwork(tf.keras.Model, ABC):
             self,
             name: str,
             num_hidden: list,
-            activation: str,
+            activation_hidden: str,
             kernel_initializer: str
     ):
         super().__init__(name=name)
         # Activation----------------------------------------------------------------------------------------------------
-        if activation == 'penalized_tanh':
-            activation = activation_penalized_tanh
+        if activation_hidden == 'penalized_tanh':
+            activation_hidden = activation_penalized_tanh
         # --------------------------------------------------------------------------------------------------------------
 
         # Layers--------------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ class ValueNetwork(tf.keras.Model, ABC):
             self.hidden_layers.append(
                 tf.keras.layers.Dense(
                     size,
-                    activation=activation,
+                    activation=activation_hidden,
                     kernel_initializer=kernel_initializer,  # default: 'glorot_uniform'
                     # bias_initializer='zeros'  # default: 'zeros'
                 ))
@@ -60,65 +60,6 @@ class ValueNetwork(tf.keras.Model, ABC):
         self.call(inputs)
 
 
-class ValueNetworkBatchNorm(ValueNetwork, ABC):
-    def __init__(
-            self,
-            name: str,
-            num_hidden: list,
-            activation: str,
-            kernel_initializer: str
-    ):
-        super().__init__(
-            name=name,
-            num_hidden=num_hidden,
-            activation=activation,
-            kernel_initializer=kernel_initializer)
-
-        self.len_hidden = len(self.hidden_layers)
-        self.batch_norm_layers: list = []
-        for _ in range(self.len_hidden):  # hidden - norm - hidden - norm - out
-            self.batch_norm_layers.append(tf.keras.layers.BatchNormalization())
-
-    @tf.function
-    def call(
-            self,
-            inputs
-    ) -> tf.Tensor:
-        x = inputs
-        for layer_id in range(self.len_hidden):
-            x = self.hidden_layers[layer_id](x)
-            x = self.batch_norm_layers[layer_id](x)
-
-        output = self.output_layer(x)
-
-        return output
-
-    @tf.function
-    def call_and_normalize_on_batch(
-            self,
-            inputs
-    ) -> tf.Tensor:
-        x = inputs
-        for layer_id in range(self.len_hidden):
-            x = self.hidden_layers[layer_id](x)
-            x = self.batch_norm_layers[layer_id](x, training=True)
-
-        output = self.output_layer(x)
-
-        return output
-
-    def initialize_inputs(
-            self,
-            inputs
-    ) -> None:
-        """
-        Ensure each method is traced once for saving
-        """
-        self(inputs)
-        self.call(inputs)
-        self.call_and_normalize_on_batch(inputs)
-
-
 class PolicyNetwork(tf.keras.Model, ABC):
     hidden_layers: list
 
@@ -127,13 +68,13 @@ class PolicyNetwork(tf.keras.Model, ABC):
             name: str,
             num_hidden: list,
             num_actions: int,
-            activation: str,
+            activation_hidden: str,
             kernel_initializer: str
     ) -> None:
         super().__init__(name=name)
         # Activation----------------------------------------------------------------------------------------------------
-        if activation == 'penalized_tanh':
-            activation = activation_penalized_tanh
+        if activation_hidden == 'penalized_tanh':
+            activation_hidden = activation_penalized_tanh
         # --------------------------------------------------------------------------------------------------------------
 
         # Layers--------------------------------------------------------------------------------------------------------
@@ -142,7 +83,7 @@ class PolicyNetwork(tf.keras.Model, ABC):
             self.hidden_layers.append(
                 tf.keras.layers.Dense(
                     size,
-                    activation=activation,
+                    activation=activation_hidden,
                     kernel_initializer=kernel_initializer,  # default: 'glorot_uniform'
                     # bias_initializer='zeros'  # default: 'zeros'
                 ))
@@ -171,66 +112,3 @@ class PolicyNetwork(tf.keras.Model, ABC):
         """
         self(inputs)
         self.call(inputs)
-
-
-class PolicyNetworkBatchNorm(PolicyNetwork, ABC):
-    hidden_layers: list
-
-    def __init__(
-            self,
-            name: str,
-            num_hidden: list,
-            num_actions: int,
-            activation: str,
-            kernel_initializer: str
-    ):
-        super().__init__(
-            name=name,
-            num_hidden=num_hidden,
-            num_actions=num_actions,
-            activation=activation,
-            kernel_initializer=kernel_initializer)
-
-        self.len_hidden = len(self.hidden_layers)
-        self.batch_norm_layers: list = []
-        for _ in range(self.len_hidden):  # hidden - norm - hidden - norm - out
-            self.batch_norm_layers.append(tf.keras.layers.BatchNormalization())
-
-    @tf.function
-    def call(
-            self,
-            inputs
-    ) -> tf.Tensor:
-        x = inputs
-        for layer_id in range(self.len_hidden):
-            x = self.hidden_layers[layer_id](x)
-            x = self.batch_norm_layers[layer_id](x)
-
-        output = self.output_layer(x)
-
-        return output
-
-    @tf.function
-    def call_and_normalize_on_batch(
-            self,
-            inputs
-    ) -> tf.Tensor:
-        x = inputs
-        for layer_id in range(self.len_hidden):
-            x = self.hidden_layers[layer_id](x)
-            x = self.batch_norm_layers[layer_id](x, training=True)
-
-        output = self.output_layer(x)
-
-        return output
-
-    def initialize_inputs(
-            self,
-            inputs
-    ) -> None:
-        """
-        Ensure each method is traced once for saving
-        """
-        self(inputs)
-        self.call(inputs)
-        self.call_and_normalize_on_batch(inputs)
