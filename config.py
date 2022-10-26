@@ -19,28 +19,26 @@ from anchoring_2_imports.dl_internals_with_expl import (
     optimizer_nadam,
 )
 
-# TODO: Look more deeply into the fisher approximation by adam. does it jump around much at every step?
-
 
 class Config:
     def __init__(
             self,
     ) -> None:
         # GENERAL-------------------------------------------------------------------------------------------------------
-        # simulation_title: str = 'anchoring_1e5_2_error'
-        simulation_title: str = 'test'
+        simulation_title: str = '512_experiences_0'
+        # simulation_title: str = 'test'
         self.verbosity: int = 1  # 0 = no prints, 1 = prints
-        self.show_plots: bool = True
+        self.show_plots: bool = False
         self.toggle_profiling: bool = False  # compute performance profiling
         self.shutdown_on_complete: bool = False
 
         rng_seed: int or None = None  # doesn't work at this time
 
         # ENVIRONMENT PARAMETERS----------------------------------------------------------------------------------------
-        self.num_episodes: int = 10
+        self.num_episodes: int = 30
         # simulation_length_seconds: int = 1
         # self.symbols_per_subframe: int = 14  # see: 5g numerologies, 14=num0. For sim seconds -> sim steps
-        self.num_steps_per_episode: int = 1_000
+        self.num_steps_per_episode: int = 10_000
 
         # LOAD
         self.available_rb_ofdm: int = 10
@@ -55,7 +53,6 @@ class Config:
         self.ue_rayleigh_fading_scale: float = .3  # for capacity
         self.ue_position_range: dict = {'low': -100, 'high': 100}  # for capacity
         # self.ue_path_loss_exponent: float = 2  # for capacity
-        self.channel_estimation_error: float = 0.1  # in %
 
         self.normal_priority_job_probability: float = 1/10_000
         self.timeout_step: dict = {  # after how many time delays is a job timed out?
@@ -83,13 +80,13 @@ class Config:
 
         self.optimizer_critic = optimizer_adam  # 'adam', 'nadam', 'amsgrad'
         self.optimizer_critic_args: dict = {
-            'learning_rate': 1e-3,
+            'learning_rate': 1e-4,
             'epsilon': 1e-8,
             'amsgrad': True,
         }
         self.optimizer_actor = optimizer_adam
         self.optimizer_actor_args: dict = {
-            'learning_rate': 1e-3,
+            'learning_rate': 1e-4,
             'epsilon': 1e-8,
             'amsgrad': True,
         }
@@ -112,10 +109,10 @@ class Config:
         self.critic_anchoring_weight_lambda: float = 0.0
 
         # GEM
-        self.num_experiences_dump: int = 2048  # number of samples to save from a task for loading in future tasks
+        self.num_experiences_dump: int = 512  # number of samples to save from a task for loading in future tasks
 
         # EXP BUFFER
-        self.experience_buffer_max_size: int = 20_000
+        self.experience_buffer_max_size: int = 70_000
         self.prioritization_factors: dict = {'alpha': 0.0,  # priority = priority ** alpha, \alpha \in [0, 1]
                                              'beta': 1.0}  # IS correction, \beta \in [0%, 100%]
 
