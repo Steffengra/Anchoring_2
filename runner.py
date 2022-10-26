@@ -39,9 +39,6 @@ from anchoring_2_imports.plotting_functions import (
     plot_scatter_plot,
 )
 
-# from tensorflow.keras import mixed_precision  # TODO: This may be useful on newer gpus
-# mixed_precision.set_global_policy('mixed_float16')  # https://www.tensorflow.org/guide/mixed_precision
-
 
 class Runner:
     config: Config
