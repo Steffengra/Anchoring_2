@@ -6,6 +6,9 @@ from numpy import (
     infty,
     ones,
 )
+from keras.models import (
+    load_model,
+)
 from datetime import (
     datetime,
 )
@@ -264,7 +267,6 @@ class Runner:
 
         def allocate(st):
             return allocator_network.call(st[newaxis]).numpy().squeeze()
-
 
         # GENERAL SETUP-------------------------------------------------------------------------------------------------
         testing_name = f'testing_{name}'
