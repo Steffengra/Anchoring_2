@@ -114,11 +114,6 @@ class Simulation:
         for user in self.users.values():
             channel_quality[user.user_id] = user.channel_fading
 
-        # add estimation error
-        for user in self.users.values():
-            channel_quality[user.user_id] = self.rng.normal(
-                scale=self.config.channel_estimation_error * channel_quality[user.user_id])
-
         # maximum steps delayed per user normalized by longest possible delay
         maximum_steps_delayed = zeros(self.config.num_users)
         for user in self.users.values():
