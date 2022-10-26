@@ -13,7 +13,6 @@ from runner import Runner
 
 
 def main():
-    # TODO: FIX NAMING EVERYWHERE
     def _train_network(
             probability_crit_events: float,
             anchoring_name: None or str = None,
@@ -175,8 +174,8 @@ def main():
 
     def test():
         pass
-        # runner.config.update_num_episodes(new_num_episodes=5)
-        # runner.config.update_num_steps_per_episode(new_steps_per_episode=200_000)
+        runner.config.update_num_episodes(new_num_episodes=5)
+        runner.config.update_num_steps_per_episode(new_steps_per_episode=200_000)
 
         # test_random_scheduler()
         # test_normal_crit_events_scheduler_on_normal_crit_events()
