@@ -478,7 +478,7 @@ class TD3ActorCritic:
                 # loss value network
                 actor_actions = call_network(self.networks['policy']['primary'], input_vector)
                 value_network_input = tf.concat([input_vector, actor_actions], axis=1)
-                # TODO: Original Paper, DDPG Paper and other implementations train on primary network. Why?
+                # Original Paper, DDPG Paper and other implementations train on primary network. Why?
                 #  Because otherwise the value net is always one gradient step behind
                 value_network_score = tf.reduce_mean(
                     call_network(self.networks['value1']['primary'], value_network_input))
