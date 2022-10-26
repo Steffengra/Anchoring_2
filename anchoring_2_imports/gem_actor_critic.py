@@ -23,7 +23,6 @@ from tensorflow import (
     reduce_mean as tf_reduce_mean,
     ones as tf_ones,
 )
-# TODO: If model loading craps out, change this to tensorflow.keras.models
 from keras.models import (
     load_model,
 )
@@ -234,7 +233,7 @@ class GEMActorCritic:
             importance_sampling_correction_beta=1.0
         )
 
-        with gzip_open(Path(dump_path, f'experiences_{title}_{num_experiences}_samples.gzip'), 'wb') as file:
+        with gzip_open(Path(dump_path, f'experiences_{title}.gzip'), 'wb') as file:
             pickle_dump(sample_experiences, file=file)
 
     @tf_function
@@ -335,7 +334,8 @@ class GEMActorCritic:
         ) -> bool:
             for pt_grad_vec in pt_grad_vecs:
                 dot_product = dot(grad_vec, pt_grad_vec)
-                if dot_product < 0:
+                # print(dot_product)
+                if dot_product < 0.0:
                     # print('dot product', dot_product)
                     return True
             return False
@@ -395,33 +395,39 @@ class GEMActorCritic:
             s.t. Gx <= h
             """
             cvxopt.solvers.options['show_progress'] = False  # reduce verbosity
-            # cvxopt.solvers.options['feastol'] = 1e-7  # default 1e-7
+            # cvxopt.solvers.options['abstol'] = 1e-20  # default 1e-7
+            # cvxopt.solvers.options['reltol'] = 1e-20  # default 1e-6
+            # cvxopt.solvers.options['feastol'] = 1e-20  # default 1e-7
             new_gradient_vector_g = grad_vec[newaxis]  # 1 x m
             pt_gradient_vectors_G = -1 * array(pt_grad_vecs)
             QP_P = matmul(pt_gradient_vectors_G, pt_gradient_vectors_G.T)
             QP_qT = matmul(new_gradient_vector_g, pt_gradient_vectors_G.T)
-            # TODO: By notation, QP_G should be negative to be equivalent to GEM paper QP. However, correct results
-            #  are produced with positive sign. Why?
+            # By notation, QP_G should be negative to be equivalent to GEM paper QP. However, correct results
+            #  are produced with positive sign.
             QP_G = 1 * diag(ones(QP_P.shape[0]))
-            v_opt = cvxopt.solvers.qp(
+            optimization = cvxopt.solvers.qp(
                 P=cvxopt.matrix(QP_P.astype('double')),
                 q=cvxopt.matrix(QP_qT.astype('double')),
                 G=cvxopt.matrix(QP_G),
                 h=cvxopt.matrix([0.0]),
-            )['x']
+            )
+            if optimization['status'] != 'optimal':
+                raise ValueError(f'Optimization status: {optimization["status"]}')
+            v_opt = optimization['x']
 
-            # TODO: Small constant?
             # add a small positive constant to v:
             #  From GEM Paper "In practice, we found that adding a small constant \gamma > 0 to v
             #  biased the gradient projection to updates that favoured benefitial backwards transfer."
-            # v_opt = v_opt - 1e-1
+            # v_opt = v_opt * 1.0
+            # small_positive_constant = -1e3  # -1e3 leads to large gain in overall reward
+            # v_opt = v_opt + small_positive_constant
 
             gradient_vector_opt = matmul(pt_gradient_vectors_G.T, array(v_opt)).squeeze() + grad_vec
 
-            # TODO: This check is for debugging purposes only and can be removed to improve performance
+            # This check is for debugging purposes only and can be removed to improve performance
             # for pt_gradient_vector in pt_grad_vecs:
-                # dot_product = dot(gradient_vector_opt, pt_gradient_vector)
-                # print('dot_after', dot_product)
+            #     dot_product = dot(gradient_vector_opt, pt_gradient_vector)
+            #     print('dot_after', dot_product)
 
             return gradient_vector_opt
 
@@ -463,6 +469,7 @@ class GEMActorCritic:
             pt_grad_vecs=pt_gradient_vectors,
         )
         if violation_flag:
+            # print('critic')
             # if so, transform gradients to the least perturbed other vector that does not worsen performance
             gradients = transform_gradient(
                 grad_vec=gradient_vector,
@@ -470,7 +477,6 @@ class GEMActorCritic:
             )
             gradients = [gradient.astype('float32')
                          for gradient in gradients]
-            # exit()
 
         # apply gradient update
         self.apply_gradients_critic(
@@ -500,7 +506,6 @@ class GEMActorCritic:
             )
             gradients = [gradient.astype('float32')
                          for gradient in gradients]
-            # exit()
 
         # apply gradient update
         self.apply_gradients_actor(
@@ -596,7 +601,7 @@ class GEMActorCritic:
                 # loss value network
                 actor_actions = policy_net.call(in_vec)
                 value_network_input = tf_concat([in_vec, actor_actions], axis=1)
-                # TODO: Original Paper, DDPG Paper and other implementations train on primary network. Why?
+                # Original Paper, DDPG Paper and other implementations train on primary network. Why?
                 #  Because otherwise the value net is always one gradient step behind
                 value_network_score = tf_reduce_mean(self.networks['value1']['primary'].call(value_network_input))
                 target = -1 * value_network_score
