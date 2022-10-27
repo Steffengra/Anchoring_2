@@ -86,6 +86,7 @@ def main():
             probability_crit_events=0.0,
             prior_task_sample_names=['1.0_critical'],
             preload_policy_parameters='0.0001_gem',
+            preload_value_parameters='0.0001_gem',
             name_extra='twice',
         )
 
