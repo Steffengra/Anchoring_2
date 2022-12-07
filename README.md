@@ -1,6 +1,6 @@
 
 
-The code presented was used in a publication submitted to WSASCC 2023
+The code presented was used in a publication submitted to WSASCC 2023.
 
 The project structure is as follows:
 
