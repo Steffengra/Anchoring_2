@@ -9,6 +9,7 @@ The project structure is as follows:
 ├─ anchoring_2_imports/| python modules
 ├─ .gitignore                               | .gitignore
 ├─ config.py                                | contains configurable parameters
+├─ README.md                                | this file
 ├─ requirements.txt                         | project dependencies
 ├─ runner.py                                | orchestrates training & testing EWC
 ├─ runner_GEM.py                            | orchestrates training & testing GEM
