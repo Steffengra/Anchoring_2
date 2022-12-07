@@ -11,7 +11,7 @@ from numpy import (
 from numpy.random import (
     default_rng,
 )
-from tensorflow.keras.models import (
+from keras.models import (
     load_model,
 )
 from pathlib import (
@@ -34,7 +34,6 @@ from shutil import (
 from config import Config
 from anchoring_2_imports.td3 import TD3ActorCritic
 from anchoring_2_imports.simulation import Simulation
-from anchoring_2_imports.prune_network import prune_network
 from anchoring_2_imports.plotting_functions import (
     plot_scatter_plot,
 )
@@ -661,15 +660,6 @@ class Runner:
             def allocate_state_current() -> ndarray:
                 return allocator_network.call(state_current[newaxis]).numpy().squeeze()
 
-            if self.config.prune_network:
-                with gzip_open(Path(self.config.model_path, policy_pruning_parameters_path), 'rb') as file:
-                    training_parameters_initial = pickle_load(file=file)['initial']
-                parameters_new = prune_network(
-                    network=allocator_network,
-                    training_parameters_initial=training_parameters_initial,
-                    **self.config.pruning_args
-                )
-                allocator_network.set_weights(parameters_new)
         elif allocator == 'random':
             def allocate_state_current() -> ndarray:
                 solution = self.rng.random(self.config.num_actions_policy)
