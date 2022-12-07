@@ -6,7 +6,7 @@ The project structure is as follows:
 
 ```
 /project/
-├─ anchoring_2_imports/| python modules
+├─ anchoring_2_imports/                     | python modules
 ├─ .gitignore                               | .gitignore
 ├─ config.py                                | contains configurable parameters
 ├─ README.md                                | this file
