@@ -2,27 +2,11 @@
 # Folders
 __pycache__/
 .idea/
+.git/
 venv/
-tests/
-SavedModels/
-plotting/
-logs/
-performance_profiles/
-ignore/
 
-# Files
-*.pdf
-*.pgf
-*.stor
-*.gstor
-*.zip
-*.gzip
-*.bu
-*.h5
-*.profile
-*.csv
-*.dat
-
-load_profile.py
-test.py
-test?.py
+/data/
+/models/
+/outputs/
+/references/
+/reports/
