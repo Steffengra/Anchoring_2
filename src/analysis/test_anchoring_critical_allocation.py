@@ -8,8 +8,8 @@ from pathlib import (
     Path,
 )
 
-from config import Config
-from runner import Runner
+from src.config.config import Config
+from src.models.runner import Runner
 
 
 def main():

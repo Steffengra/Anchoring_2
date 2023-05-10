@@ -26,10 +26,10 @@ from shutil import (
     copy2,
 )
 
-from config import Config
-from anchoring_2_imports.simulation import Simulation
-from anchoring_2_imports.gem_actor_critic import GEMActorCritic
-from anchoring_2_imports.plotting_functions import (
+from src.config.config import Config
+from src.data.simulation import Simulation
+from src.models.gem_actor_critic import GEMActorCritic
+from src.plotting.plotting_functions import (
     plot_scatter_plot,
 )
 

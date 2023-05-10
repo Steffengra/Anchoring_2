@@ -37,14 +37,14 @@ from pickle import (
     load as pickle_load,
 )
 
-from anchoring_2_imports.experience_buffer import (
+from src.models.experience_buffer import (
     ExperienceBuffer,
 )
-from anchoring_2_imports.network_models import (
+from src.models.network_models import (
     ValueNetwork,
     PolicyNetwork,
 )
-from anchoring_2_imports.dl_internals_with_expl import (
+from src.models.dl_internals_with_expl import (
     mse_loss,
     huber_loss,
 )

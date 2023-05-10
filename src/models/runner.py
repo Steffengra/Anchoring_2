@@ -31,10 +31,10 @@ from shutil import (
     copy2,
 )
 
-from config import Config
-from anchoring_2_imports.td3 import TD3ActorCritic
-from anchoring_2_imports.simulation import Simulation
-from anchoring_2_imports.plotting_functions import (
+from src.config.config import Config
+from src.models.td3 import TD3ActorCritic
+from src.data.simulation import Simulation
+from src.plotting.plotting_functions import (
     plot_scatter_plot,
 )
 

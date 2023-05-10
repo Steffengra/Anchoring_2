@@ -2,7 +2,7 @@
 import tensorflow as tf
 from abc import ABC
 
-from anchoring_2_imports.activation_functions import (
+from src.models.activation_functions import (
     activation_penalized_tanh
 )
 

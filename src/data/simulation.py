@@ -6,8 +6,8 @@ from numpy import (
     concatenate,
 )
 
-from anchoring_2_imports.basic_resource_grid import ResourceGrid
-from anchoring_2_imports.ue import UserEquipment
+from src.data.basic_resource_grid import ResourceGrid
+from src.data.ue import UserEquipment
 
 
 class Simulation:

@@ -3,7 +3,7 @@ from numpy.random import (
     default_rng,
 )
 
-from anchoring_2_imports.job import Job
+from src.data.job import Job
 
 
 class UserEquipment:

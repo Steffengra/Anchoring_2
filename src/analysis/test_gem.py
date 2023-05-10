@@ -9,28 +9,28 @@ from matplotlib.pyplot import (
     show as plt_show,
 )
 
-from config import Config
-from runner_GEM import Runner
+from src.config.config import Config
+from src.models.runner_GEM import Runner
 
 
 def main():
     def train():
         pass
 
-        # train_on_hundred_percent_crit_events()
-        # train_on_normal_crit_events_gem_hundred_percent_crit_events_pretrained()
-        train_on_no_crit_events_gem_hundred_percent_crit_events_pretrained_twice()
+        train_on_hundred_percent_crit_events()
+        train_on_normal_crit_events_gem_hundred_percent_crit_events_pretrained()
+        # train_on_no_crit_events_gem_hundred_percent_crit_events_pretrained_twice()
 
         # train_on_normal_crit_events()
 
     def test():
         pass
-        runner.config.update_num_episodes(new_num_episodes=5)
-        runner.config.update_num_steps_per_episode(new_steps_per_episode=200_000)
+        # runner.config.update_num_episodes(new_num_episodes=5)
+        # runner.config.update_num_steps_per_episode(new_steps_per_episode=200_000)
 
-        # test_hundred_percent_crit_events_scheduler_on_normal()
-        # test_normal_gem_hundred_pretrained_on_normal()
-        test_zero_gem_hundred_pretrained_twice_on_normal()
+        test_hundred_percent_crit_events_scheduler_on_normal()
+        test_normal_gem_hundred_pretrained_on_normal()
+        # test_zero_gem_hundred_pretrained_twice_on_normal()
 
         # test_normal_pretrained_on_normal()
 
