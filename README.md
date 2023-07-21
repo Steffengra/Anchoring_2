@@ -1,6 +1,10 @@
 
 
-The code presented was used in a publication submitted to WSASCC 2023.
+The code presented was used in the following publication ([preprint here](https://arxiv.org/abs/2304.12660)).
+
+[1] S. Gracla, C. Bockelmann, A. Dekorsy,
+"A Multi-Task Approach to Robust Deep Reinforcement Learning for Resource Allocation",
+ International ITG 26th Workshop on Smart Antennas and 13th Conference on Systems, Communications, and Coding, Braunschweig, Germany, 27. February - 3. March 2023
 
 The project structure is as follows:
 
