@@ -6,6 +6,8 @@ The code presented was used in the following publication [(preprint here)](https
 "A Multi-Task Approach to Robust Deep Reinforcement Learning for Resource Allocation",
  International ITG 26th Workshop on Smart Antennas and 13th Conference on Systems, Communications, and Coding, Braunschweig, Germany, 27. February - 3. March 2023
 
+Email: {**gracla**, bockelmann, dekorsy}@ant.uni-bremen.de
+
 The project structure is as follows:
 
 ```
