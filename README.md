@@ -24,17 +24,17 @@ The project structure is as follows:
 +---reports              | project reports
 |   +---figures
 +---src                  | python files
-|   +---analysis         |   .. related to generating results
+|   +---analysis         | generating results
 |   |       test_anchoring_critical_allocation.py  | wrapper for testing different configurations of EWC
 |   |       test_gem.py                            | wrapper for training & testing different configurations of GEM
 |   |       
-|   +---config           |   configuration
-|   +---data             |   .. related to generating data to learn from
-|   +---models           |   .. related to creating learned models
+|   +---config           | configuration
+|   +---data             | to generating data to learn from
+|   +---models           | related to creating learned models
 |   |       runner.py      | orchestrates training & testing EWC
 |   |       runner_GEM.py  | orchestrates training & testing GEM
 |   |       
-|   +---plotting         |   .. related to plotting results
-|   +---tests            |   automated tests
-|   \---utils            |   shared functions and code snippets
+|   +---plotting         | plotting results
+|   +---tests            | automated tests
+|   \---utils            | shared functions and code snippets
 ```
