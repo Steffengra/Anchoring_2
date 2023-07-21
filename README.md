@@ -1,6 +1,6 @@
 
 
-The code presented was used in the following publication ([preprint here](https://arxiv.org/abs/2304.12660)).
+The code presented was used in the following publication [(preprint here)](https://arxiv.org/abs/2304.12660).
 
 [1] S. Gracla, C. Bockelmann, A. Dekorsy,
 "A Multi-Task Approach to Robust Deep Reinforcement Learning for Resource Allocation",
